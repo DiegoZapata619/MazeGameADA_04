@@ -37,6 +37,7 @@ public class GameController
 
     private void loadLevelFile(String fileName)
     {
+        theArc = new TheArchitect();
         fl.loadFile(fileName);
         theArc.setExit(fl.ExitXCord(), fl.ExitYCord());
         matrix = copyOf(fl.getGameMatrix());
@@ -70,7 +71,6 @@ public class GameController
     {
         levelNum += 1;
         tk.TimeKeeper(minutesLeft, secondsLeft);
-        theArc = new TheArchitect();
         catFileName += 1;
         loadLevelFile("level" + catFileName + ".maz");
     }
