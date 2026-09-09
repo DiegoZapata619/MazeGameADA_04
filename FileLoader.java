@@ -5,7 +5,8 @@ import javax.swing.*;
 public class FileLoader
 {
     public void loadFile(String fileName)
-    {  
+    {
+        fileName = "mazes/" + fileName;
         try
         {
             BufferedReader in = new BufferedReader(new FileReader(fileName));            
@@ -84,8 +85,6 @@ public class FileLoader
                   i1=i;
                   j1=j;
                 }
-     System.out.println(playerCount + "playerCount");
-        System.out.println(exitCount + "playerCount");
 
           }}//end double for loop
              if(playerCount >1 || exitCount>1)
