@@ -1,13 +1,19 @@
-import java.awt.*;
-import java.awt.event.*;
-import java.io.File;
 import javax.swing.*;
 //Your life is the sum of a remainder of an unbalanced equation inherent to the programming
 //of the matrix
 
 public class TheArchitect extends JFrame
 {
-   public void setExit(int x, int y)//records the location of the exit so we can show it when its time
+    SoundController snc = new SoundController();
+    int foundPlayer=0;
+    String[][] updatedMatrix;
+    int WallXCord;
+    int WallYCord;
+    int collected=0;
+    boolean level;
+    int globalTotalDimonds=0;
+
+    public void setExit(int x, int y)//records the location of the exit so we can show it when its time
    {
        WallXCord=x;
        WallYCord=y;  
@@ -17,7 +23,7 @@ public class TheArchitect extends JFrame
        updatedMatrix[WallXCord][WallYCord]="E";  
    }
 
-    public void playerMove(int xScale, int yScale, String[][] currentMatrix,int totalDimonds)throws StupidAssMove
+    public void playerMove(int xScale, int yScale, String[][] currentMatrix,int totalDimonds)
     {
        int x=0;
        int y=0;
@@ -37,41 +43,51 @@ public class TheArchitect extends JFrame
             break;
            }
         }}//end both for loops
-            if(currentMatrix[x+xScale][y+yScale].equals("H"))//its a hidden dimond
+        //Se recoge un diamante
+            if(currentMatrix[x+xScale][y+yScale].equals("H"))
             {
                 currentMatrix[x][y]="N";
                 currentMatrix[x+xScale][y+yScale]="P";
                 currentMatrix[x][y]="N";
-                collected+=1;//we got a hidden dimond! wow!
+                collected+=1;
+                snc.playSound("diamond!");
             }
+            //Se recoge un diamante oculto. Mismo comportamiento
             else if(currentMatrix[x+xScale][y+yScale].equals("D"))//its a dimond
             {
                 currentMatrix[x][y]="N";
                 currentMatrix[x+xScale][y+yScale]="P";
-                collected+=1;//we got a dimond
+                collected+=1;
+                snc.playSound("diamond!");
             }
-            else if(currentMatrix[x+xScale][y+yScale].equals("M") && currentMatrix[x+(xScale*2)][y+(yScale*2)].equals("N"))//move a moveable wall
+
+            else if(currentMatrix[x+xScale][y+yScale].equals("M") && currentMatrix[x+(xScale*2)][y+(yScale*2)].equals("N"))
             {
                 currentMatrix[x][y]="N";
                 currentMatrix[x+xScale][y+yScale]="P"; 
                 currentMatrix[x+(xScale*2)][y+(yScale*2)]="M";
+                snc.playSound("moveWall");
             }
-            else if (currentMatrix[x+xScale][y+yScale].equals("N"))//normal move foward onto nothing
+            //Avance normal a un bloque vacío
+            else if (currentMatrix[x+xScale][y+yScale].equals("N"))
             {
                 currentMatrix[x][y]="N";
                 currentMatrix[x+xScale][y+yScale]="P"; 
             }
-            else if (currentMatrix[x+xScale][y+yScale].equals("E"))//its an exit
+            else if (currentMatrix[x+xScale][y+yScale].equals("E"))
             {
                 currentMatrix[x][y]="N";
-                currentMatrix[x+xScale][y+yScale]="P"; 
+                currentMatrix[x+xScale][y+yScale]="P";
                 nextLevel(true);//allow the next level to be loaded.
+                snc.playSound("victory!");
             }
-            else
-               throw new StupidAssMove("Ass Hole hit wall!");
-                
-            if(collected==totalDimonds)//if we have all the dimonds give the player the exit
-            showWall();
+            else {
+                snc.playSound("hitWall");
+            }
+
+            if(collected==totalDimonds){
+                showWall();
+            }
                
             updatedMatrix=currentMatrix;  //we will return updatedMatrix for the gui                     
         }//end method
@@ -95,21 +111,5 @@ public class TheArchitect extends JFrame
     {
         return updatedMatrix;    
     }
-    
-    private class StupidAssMove extends RuntimeException
-    {
-         public StupidAssMove(String event)
-         {
-             JFrame frame = new JFrame("Warning");
-             JOptionPane.showMessageDialog(frame, "You Stupid Ass, Ran into something did you?");
-         }
-    }//end inner class
-    
-int foundPlayer=0;
-String[][] updatedMatrix;
-int WallXCord;
-int WallYCord;
-int collected=0;
-boolean level;
-int globalTotalDimonds=0;
+
 }//end class
