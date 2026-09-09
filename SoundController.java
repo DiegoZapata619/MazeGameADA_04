@@ -1,24 +1,49 @@
-import javax.sound.sampled.AudioSystem;
-import javax.sound.sampled.Clip;
-import javax.sound.sampled.LineUnavailableException;
-import javax.sound.sampled.UnsupportedAudioFileException;
+import javax.sound.sampled.*;
 import javax.swing.*;
 import java.io.IOException;
+import java.net.URL;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 //Implementación de sonido ante ciertas acciones
 public class SoundController {
-    private Clip clip;
 
-    public void playSound(String ruta) {
+    //Cada clip se relaciona con su nombre, más eficiente
+    private final Map<String, Clip> clips = new HashMap<>();
+
+    //synchronized es usado para que solo una ejecución de playSound manipule los clips a la vez
+    public synchronized void playSound(String soundName) {
+
         try {
-            clip = AudioSystem.getClip();
-            ruta = "sounds/" + ruta + ".wav";
-            clip.open(AudioSystem.getAudioInputStream(getClass().getResource(ruta)));
-            //pequeña validación, si se vuelve a activar el evento del sonido, se reinicia
-            if (clip==null){
-                return;
+            Clip clip = clips.get(soundName);
+            if (clip == null) {
+                //URL que arroja null si no se encontró el archivo, más seguro
+                URL resource = getClass().getResource("/sounds/" + soundName + ".wav");
+                if (resource == null) {
+                    throw new IOException("No se encontró /sounds/" + soundName + ".wav");
+                }
+
+                clip = AudioSystem.getClip();
+                clip.open(AudioSystem.getAudioInputStream(resource));
+
+                //Float control permite manipular el sonido en escala. Primero se verifica
+                //si el audio soporta la manipulación de volumen
+                //Type.MASTER_GAIN maneja la escala en decibeles
+
+                if (clip.isControlSupported(FloatControl.Type.MASTER_GAIN)) {
+                    FloatControl gain = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
+                    gain.setValue(Math.max(gain.getMinimum(), -12.0f));
+                }
+                clips.put(soundName, clip);
             }
-            if (clip.isRunning()){
+            //Para evitar que se sature de sonido, se verifica si ya hay un clip corriendo
+            //si es así, para el clip de sonido y lo reinicia
+            if (clip.isRunning()) {
+                if (soundName.equals("hitWall")){
+                    return;
+                }
                 clip.stop();
             }
             clip.setFramePosition(0);
@@ -27,5 +52,4 @@ public class SoundController {
             JOptionPane.showMessageDialog(null, "Error en audio:\n" + ex.getMessage());
         }
     }
-
 }
