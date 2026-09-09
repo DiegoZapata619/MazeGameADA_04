@@ -26,7 +26,7 @@ public class GameController
     {
         catFileName = 1;
         levelNum = 1;
-        loadLevelFile("mazes/level1.maz");
+        loadLevelFile("level1.maz");
     }
 
     //Habilita la opción de cargar un maze específico
@@ -72,7 +72,7 @@ public class GameController
         tk.TimeKeeper(minutesLeft, secondsLeft);
         theArc = new TheArchitect();
         catFileName += 1;
-        loadLevelFile("mazes/"+ "level" + catFileName + ".maz");
+        loadLevelFile("level" + catFileName + ".maz");
     }
 
     //Método llamado cuando el jugador se queda sin tiempo
