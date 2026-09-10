@@ -41,7 +41,7 @@ public class SoundController {
             //Para evitar que se sature de sonido, se verifica si ya hay un clip corriendo
             //si es así, para el clip de sonido y lo reinicia
             if (clip.isRunning()) {
-                if (soundName.equals("hitWall")){
+                if (soundName.equals("hitWall")) {
                     return;
                 }
                 clip.stop();

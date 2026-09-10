@@ -14,10 +14,8 @@ import java.awt.*;
     -CountdownTimer: Encapsula la lógica del menú de progreso en cada nivel.
  */
 public class GameGui extends JFrame
-        implements MazeMenuBar.Listener, MazeBoardPanel.MoveListener, CountdownTimer.Listener
-{
-    public static void main(String[] args)
-    {
+        implements MazeMenuBar.Listener, MazeBoardPanel.MoveListener, CountdownTimer.Listener {
+    public static void main(String[] args) {
         new GameGui();
     }
 
@@ -30,8 +28,7 @@ public class GameGui extends JFrame
 
     private CountdownTimer timer;
 
-    public GameGui()
-    {
+    public GameGui() {
         super("Maze, a game of wondering");
         cp = getContentPane();
 
@@ -49,43 +46,35 @@ public class GameGui extends JFrame
     // Implementaciones de MazeMenuBarListener
     // Permite que cada opción tenga una interacción a través de Gamecontroller
 
-    public void newGame()
-    {
+    public void newGame() {
         controller.startNewGame();
         showBoard();
     }
 
-    public void openFile()
-    {
+    public void openFile() {
         JFileChooser chooser = new JFileChooser();
         int result = chooser.showOpenDialog(this);
-        if (result == JFileChooser.APPROVE_OPTION)
-        {
+        if (result == JFileChooser.APPROVE_OPTION) {
             controller.openFile(chooser.getSelectedFile().getName());
             showBoard();
         }
     }
 
-    public void enterName()
-    {
+    public void enterName() {
         controller.promptForPlayerName();
     }
 
-    public void openHighScore()
-    {
+    public void openHighScore() {
         ScoreGui sg = new ScoreGui();
         sg.ScoreGui();
     }
 
-    public void onSaveScore()
-    {
+    public void onSaveScore() {
         controller.saveScore();
     }
 
-    public void onExit()
-    {
-        if (timer != null)
-        {
+    public void onExit() {
+        if (timer != null) {
             timer.stop();
         }
         System.exit(0);
@@ -95,20 +84,16 @@ public class GameGui extends JFrame
     //
 
 
-    public void onMove(int xScale, int yScale)
-    {
-            boolean levelComplete = controller.move(xScale, yScale);
-            refreshBoard();
-            if (levelComplete)
-            {
-                loadNextLevel();
-            }
+    public void onMove(int xScale, int yScale) {
+        boolean levelComplete = controller.move(xScale, yScale);
+        refreshBoard();
+        if (levelComplete) {
+            loadNextLevel();
+        }
     }
 
 
-
-    public void onTimeout()
-    {
+    public void onTimeout() {
         JLabel tooSlowLabel = new JLabel("", new ImageIcon("yousuck.jpg"), JLabel.LEFT);
         cp.add(tooSlowLabel);
         cp.remove(board);
@@ -116,22 +101,17 @@ public class GameGui extends JFrame
         pack();
         setVisible(true);
 
-        if (controller.retryCurrentLevel())
-        {
+        if (controller.retryCurrentLevel()) {
             showBoard();
-        }
-        else
-        {
+        } else {
             JOptionPane.showMessageDialog(this, "Slow player. You need to hurry!");
         }
     }
 
     //  Renderiza elementos de la pantalla
 
-    private void showBoard()
-    {
-        if (timer != null)
-        {
+    private void showBoard() {
+        if (timer != null) {
             timer.stop();
         }
         cp.remove(splashLabel);
@@ -152,14 +132,12 @@ public class GameGui extends JFrame
         board.requestFocusInWindow();
     }
 
-    private void refreshBoard()
-    {
+    private void refreshBoard() {
         board.render(controller.getMatrix());
         diamondsLabel.setText("Total Diamonds Left to Collect " + controller.getDiamondsLeft());
     }
 
-    private void loadNextLevel()
-    {
+    private void loadNextLevel() {
         controller.advanceToNextLevel(timer.getMinutesLeft(), timer.getSecondsLeft());
         showBoard();
     }
