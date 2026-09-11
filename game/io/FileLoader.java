@@ -121,9 +121,9 @@ public class FileLoader {
     //Retorna la cantidad total de diamantes presentes en el nivel
     public int dimondCount() {
         int totalDimonds = 0;
-        for (int i = 0; i < GameMatrix.length; i++) {
-            for (int j = 0; j < GameMatrix[i].length; j++) {
-                if (GameMatrix[i][j].equals("D") || GameMatrix[i][j].equals("H"))
+        for (String[] gameMatrix : GameMatrix) {
+            for (String matrix : gameMatrix) {
+                if (matrix.equals("D") || matrix.equals("H"))
                     totalDimonds += 1;
             }
         }
