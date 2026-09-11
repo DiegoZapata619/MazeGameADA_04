@@ -37,6 +37,11 @@ public class GameController {
 
     //Carga un archivo de laberinto específico, elegido por el jugador.
     public void openFile(String fileName) {
+        //Cada nivel es de tipo "levelN.maz"
+        //Con índices            0123456789
+        //Interesa el substring que empieza en el 5 y termina en 6 (para niveles con un solo dígito) o en 7 (dos dígitos)
+        String levelNumber = fileName.substring(5,fileName.length()-4);
+        catFileName = Integer.parseInt(levelNumber);
         loadLevelFile(fileName);
     }
 
