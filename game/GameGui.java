@@ -11,18 +11,20 @@ import java.awt.*;
 
 
 /*
-    Refactorización grande:
-    -game.GameGui: Solo coordina los eventos que ocurren, actualiza las vistas y renderiza los componentes visuales
-    -game.controller.GameController: Contiene las reglas del juego y es utilizado por la gui para accionar
-    -game.audio.SoundController: Sonidos dinámicos que dependen de los movimientos del jugador
-    -game.controller.view.MazeBoardPanel: Se elimina la lógica de creación de matrices de la gui y se crea una clase aparte encargada.
-    Ya no se reinicia el tablero con cada movimiento, ahora se evalúa si el nivel cambio y, en respuesta,
-    se crea el panel o se actualiza dependiendo del movimiento.
-    -game.controller.view.MazeMenuBar: Despliega los componentes de la vista del menú principal.
-    -game.controller.view.CountdownTimer: Encapsula la lógica del menú de progreso en cada nivel.
+    Ventana principal del juego. Tras la refactorización, esta clase solo coordina los eventos que ocurren,
+    actualiza las vistas y renderiza los componentes visuales, ya que no contiene reglas del juego ni lógica
+    construcción de la matriz.
+    Responsabilidades:
+    - GameController: Contiene las reglas del juego y es utilizado por esta GUI para accionar
+    - MazeBoardPanel: Renderiza el tablero, ya no se construye en cada movimiento,
+        solo cuando cambian las dimensiones del laberinto (cambio de nivel)
+    - MazeMenuBar: Despliega los componentes del menú principal
+    - CountdownTimer: Encapsula la lógica de la barra de progreso de cada nivel
+    - SoundController: Reproduce sonidos dinámicos según los movimientos del jugador
  */
 public class GameGui extends JFrame
         implements MazeMenuBar.Listener, MazeBoardPanel.MoveListener, CountdownTimer.Listener {
+
     public static void main(String[] args) {
         new GameGui();
     }
@@ -51,7 +53,7 @@ public class GameGui extends JFrame
         setVisible(true);
     }
 
-    // Implementaciones de MazeMenuBarListener
+    // Implementación de MazeMenuBarListener
     // Permite que cada opción tenga una interacción a través de Gamecontroller
 
     public void newGame() {
@@ -88,9 +90,8 @@ public class GameGui extends JFrame
         System.exit(0);
     }
 
-    // Implementación de moveListener de game.controller.view.MazeBoardPanel. Captura los movimientos del jugador
-    //
-
+    // Implementación de moveListener de game.controller.view.MazeBoardPanel.
+    // Captura los movimientos del jugador reportados por el tablero
 
     public void onMove(int xScale, int yScale) {
         boolean levelComplete = controller.move(xScale, yScale);
@@ -100,7 +101,8 @@ public class GameGui extends JFrame
         }
     }
 
-
+    // Implementación de CountdownTimer.Listener
+    // Se llama cuando el jugador se queda sin tiempo para completar el nivel
     public void onTimeout() {
         JLabel tooSlowLabel = new JLabel("", new ImageIcon("yousuck.jpg"), JLabel.LEFT);
         cp.add(tooSlowLabel);
@@ -117,6 +119,8 @@ public class GameGui extends JFrame
     }
 
     //  Renderiza elementos de la pantalla
+    // Muestra el tablero del nivel actual, quita la pantalla de bienvenida
+    // (o nivel anterior), reinicia el temporizador y renderiza el tablero.
 
     private void showBoard() {
         if (timer != null) {
@@ -140,11 +144,13 @@ public class GameGui extends JFrame
         board.requestFocusInWindow();
     }
 
+    //Actualiza el tablero y el contador de diamantes restantes con el estado actual de GameController
     private void refreshBoard() {
         board.render(controller.getMatrix());
         diamondsLabel.setText("Total Diamonds Left to Collect " + controller.getDiamondsLeft());
     }
 
+    //Acumula el tiempo restante del nivel completado y carga el siguiente.
     private void loadNextLevel() {
         controller.advanceToNextLevel(timer.getMinutesLeft(), timer.getSecondsLeft());
         showBoard();

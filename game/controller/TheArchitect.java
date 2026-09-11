@@ -3,8 +3,12 @@ package game.controller;
 import game.audio.SoundController;
 
 import javax.swing.*;
-//Your life is the sum of a remainder of an unbalanced equation inherent to the programming
-//of the matrix
+
+/*
+    Contiene la lógica de movimiento del jugador dentro del laberinto:
+    detecta contra qué tipo de celda se mueve (pared, diamante, muro movible, salida)
+    y actualiza la matriz, notificando el efecto de sonido correspondiente mediante SoundController.
+ */
 
 public class TheArchitect extends JFrame {
     SoundController snc = new SoundController();
@@ -16,37 +20,42 @@ public class TheArchitect extends JFrame {
     boolean level;
     int globalTotalDimonds = 0;
 
-    public void setExit(int x, int y)//records the location of the exit so we can show it when its time
-    {
+    //Guarda la posición de la salida para poder reverlarla más adelante.
+    public void setExit(int x, int y) {
         WallXCord = x;
         WallYCord = y;
     }
 
-    public void showWall()//used when its time to show the exit.
-    {
+    //Reve la salida en la matriz, marcándola con "E" en su posición guardada.
+    //Se invoca una vez que el jugador recolectó todos los diamantes.
+    public void showWall() {
         updatedMatrix[WallXCord][WallYCord] = "E";
     }
 
+    //Procesa el intento de movimiento del jugador: localiza su posición actual en la matriz,
+    //y según su celda de destino decide si se mueve, recoge un diamante, empuja un muro movible,
+    //llega a la salida o choca contra un muro.
     public void playerMove(int xScale, int yScale, String[][] currentMatrix, int totalDimonds) {
         int x = 0;
         int y = 0;
         int found = 0;
-        globalTotalDimonds = totalDimonds; //use this later for the gui dimond count
-        nextLevel(false); //dont go to the next level yet.
-        String[][] junkMatrix = currentMatrix;//we will be updating currentMatrix
-        for (int i = 0; i < currentMatrix.length; i++) //for loop will find were the player is now
-        {
+        globalTotalDimonds = totalDimonds; //Se usa después para mostrar diamantes restantes en la GUI
+        nextLevel(false); //todavía no se avanza de nivel
+
+        String[][] junkMatrix = currentMatrix;
+        //Localiza la posición actual del jugador en la matriz
+        for (int i = 0; i < currentMatrix.length; i++) {
             for (int j = 0; j < currentMatrix[i].length; j++) {
-                if (currentMatrix[i][j].equals("P"))//we found the player
-                {
-                    x = i;//record the players position
+                if (currentMatrix[i][j].equals("P")) {
+                    x = i;
                     y = j;
                     found = 1;
                     break;
                 }
             }
-        }//end both for loops
-        //Se recoge un diamante
+        }
+
+        //Diamante oculto
         if (currentMatrix[x + xScale][y + yScale].equals("H")) {
             currentMatrix[x][y] = "N";
             currentMatrix[x + xScale][y + yScale] = "P";
@@ -54,29 +63,34 @@ public class TheArchitect extends JFrame {
             collected += 1;
             snc.playSound("diamond!");
         }
-        //Se recoge un diamante oculto. Mismo comportamiento
-        else if (currentMatrix[x + xScale][y + yScale].equals("D"))//its a dimond
-        {
+        //Diamante visible
+        else if (currentMatrix[x + xScale][y + yScale].equals("D")){
             currentMatrix[x][y] = "N";
             currentMatrix[x + xScale][y + yScale] = "P";
             collected += 1;
             snc.playSound("diamond!");
-        } else if (currentMatrix[x + xScale][y + yScale].equals("M") && currentMatrix[x + (xScale * 2)][y + (yScale * 2)].equals("N")) {
+        }
+        //Empuja un muro movible hacia una celda libre
+        else if (currentMatrix[x + xScale][y + yScale].equals("M") && currentMatrix[x + (xScale * 2)][y + (yScale * 2)].equals("N")) {
             currentMatrix[x][y] = "N";
             currentMatrix[x + xScale][y + yScale] = "P";
             currentMatrix[x + (xScale * 2)][y + (yScale * 2)] = "M";
             snc.playSound("moveWall");
         }
-        //Avance normal a un bloque vacío
+        //Avance normal a una celda vacía
         else if (currentMatrix[x + xScale][y + yScale].equals("N")) {
             currentMatrix[x][y] = "N";
             currentMatrix[x + xScale][y + yScale] = "P";
-        } else if (currentMatrix[x + xScale][y + yScale].equals("E")) {
+        }
+        //Llega a la salida y se habilita el avance de nivel
+        else if (currentMatrix[x + xScale][y + yScale].equals("E")) {
             currentMatrix[x][y] = "N";
             currentMatrix[x + xScale][y + yScale] = "P";
-            nextLevel(true);//allow the next level to be loaded.
+            nextLevel(true);
             snc.playSound("victory!");
-        } else {
+        }
+        //Choca contra un muro
+        else {
             snc.playSound("hitWall");
         }
 
@@ -84,25 +98,26 @@ public class TheArchitect extends JFrame {
             showWall();
         }
 
-        updatedMatrix = currentMatrix;  //we will return updatedMatrix for the gui
-    }//end method
+        updatedMatrix = currentMatrix;  //Se regresa a la GUI
+    }
 
-    public void nextLevel(boolean tOrF)//true we go to next level, false we update current level's gui 
-    {
+    //Marca si se debe avanzar al siguiente nivel o solo actualizar el nivel actual
+    public void nextLevel(boolean tOrF) {
         level = tOrF;
     }
 
-    public boolean getLevel()//returs level true or false
-    {
+    //Devuelve true si el jugador alcanzó la salida y debe avanzarse de nivel
+    public boolean getLevel() {
         return level;
     }
 
+    //Cantidad de diamantes que aún faltan por recolectar, para mostrarse en la GUI
     public int getDimondsLeft() {
-        return globalTotalDimonds - collected;//for GUI JLabel, show how many dimonds are left to be collected
+        return globalTotalDimonds - collected;
     }
 
-    public String[][] getUpdatedMatrix()//returns the updated matrix for the gui to display
-    {
+    //Retorna la matriz actualizada del tablero, para que la GUI la muestre
+    public String[][] getUpdatedMatrix() {
         return updatedMatrix;
     }
 

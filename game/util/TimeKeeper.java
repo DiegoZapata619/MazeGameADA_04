@@ -1,8 +1,15 @@
 package game.util;
 
+/*
+    Lleva la cuenta del tiempo total que el jugador ha utilizado a lo largo de la partida,
+    acumulando el tiempo restante de cada nivel completado.
+ */
+
 public class TimeKeeper {
-    public void TimeKeeper(int min, int sec)//a class to keep track of the total seconds and minuntes the player has used to get to a level
-    {
+
+    //Acumula el tiempo restante de un nivel recién completado
+    //normalizando los segundos que se pasen de 60
+    public void TimeKeeper(int min, int sec) {
         if (sec + seconds <= 60) {
             minutes += min;
             seconds = sec + seconds;
@@ -11,7 +18,7 @@ public class TimeKeeper {
             minutes += ((sec + seconds) / 60);
             seconds = (sec + seconds) % 60;
         }
-    }//end game.util.TimeKeeper
+    }
 
     public int getMinutes() {
         return minutes;
@@ -23,4 +30,4 @@ public class TimeKeeper {
 
     int minutes = 0;
     int seconds = 0;
-}//end class
+}

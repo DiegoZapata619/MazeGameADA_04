@@ -3,7 +3,16 @@ package game.io;
 import java.io.*;
 import javax.swing.*;
 
+/*
+    Encargada de leer un archivo de nivel (.maz) y construir la matriz del laberinto a partir
+    de su contenido, determina las dimensiones, traduce cada carácter al tipo de celda
+    correspondiente y localiza la posición de la salida.
+ */
+
 public class FileLoader {
+
+    //Lee el archivo de nivel indicado, ubicado en resources/mazes,
+    //y procesa cada línea para construir la matriz del laberinto
     public void loadFile(String fileName) {
         fileName = "resources/mazes/" + fileName;
         try {
@@ -11,107 +20,105 @@ public class FileLoader {
             String x;
             int lineNum = 0;
             while ((x = in.readLine()) != null) {
-                MatrixLoader(x, lineNum);//pass the Matrix loader method the line and the line number for parsing.
-                lineNum++;//we will use the line number later in this class
+                MatrixLoader(x, lineNum); //Procesa la línea según su número
+                lineNum++; //Se usa más adelante para saber si es la primera línea
             }
-        }//end try
+        }
         catch (IOException e) {
             JFrame frame = new JFrame("Alert");
-            JOptionPane.showMessageDialog(frame, "Ooops IOException error, i did it again!" + e.getMessage());
-        }//end catch
-    }//end load file method
+            JOptionPane.showMessageDialog(frame, "Ocurrió un error al leer el archivo" + e.getMessage());
+        }
+    }
 
+    /*
+        Procesa una línea del archivo de nivel.
+        La primera línea (lineaNum == 0) define el tamaño de la matriz y la inicializa.
+        Las líneas siguientes se recorren carácter por carácter para llenar la matriz,
+        los puntos se normalizan a "N" y si se encuentra la salida "E" se guarda la posición
+        para usarse después.
+     */
     public void MatrixLoader(String fileTextLine, int lineNum) throws gameFileError {
-        // exitCount=0;//we must reset our variables to zero for the next level.              
-
         int sum = 0;
         char textVar;
-        if (lineNum == 0)//it is the first line of the maze file, create The Matrix based on first line of the maze file
-        {
+
+        if (lineNum == 0) {
+            //Primera línea: define el tamaño de la matriz (columnas filas)
             for (int i = 0; i < fileTextLine.length(); i++) {
-                if (fileTextLine.charAt(i) == ' ')//find blank area on first line number
-                    sum += 1;//how many blank spaces between the size of the matrix aka 4 6 or 5  7
+                if (fileTextLine.charAt(i) == ' ')
+                    sum += 1; //Cuenta espacios extra entre los dos números de tamaño
             }
-            int locationOfSpace = fileTextLine.indexOf(" ");//still handling that possible blank space in the matrix size in the file
-            String c1 = fileTextLine.substring(0, locationOfSpace);//see above
-            String r1 = fileTextLine.substring(locationOfSpace + sum);//see above
+            int locationOfSpace = fileTextLine.indexOf(" ");
+            String c1 = fileTextLine.substring(0, locationOfSpace);
+            String r1 = fileTextLine.substring(locationOfSpace + sum);
             column = Integer.parseInt(c1);
             row = Integer.parseInt(r1);
-            GameMatrix = new String[row][column];//create new matrix based on the size from the file
-        }//end if
-        else
-            for (int i = 0; i < fileTextLine.length(); i++)//it is not the first line of the maze file
-            {
-                textVar = fileTextLine.charAt(i); //grab the individual charaters from the string.
-                if (textVar == '.')//change . to N, so we dont have any goofy file system problems
-                    textVar = 'N';
-                String textVar1 = "" + textVar;
-                if (textVar == 'E')//log the position of the exit for later use
-                {
+            GameMatrix = new String[row][column];
+        }
+        else {
+            //Resto de líneas: contenido del laberinto, carácter por carácter
+            for (int i = 0; i < fileTextLine.length(); i++) {
+                textVar = fileTextLine.charAt(i);
+                if (textVar == '.')
+                    textVar = 'N'; //Se normaliza el punto a "N" para evitar conflictos con el sistema de archivos
 
+                String textVar1 = "" + textVar;
+                if (textVar == 'E') {
+                    //Se guarda la posición de salida para revelarla más adelante
                     exitXCord = lineNum - 1;
                     exitYCord = i;
-                    // textVar='W';
-                    textVar1 = "" + textVar;//turn the exit into a wall
+                    textVar1 = "" + textVar;
                 }
-                GameMatrix[lineNum - 1][i] = textVar1; //load the matrix with values, aka N,W, D, H, etc
-            }//end for loop
+                GameMatrix[lineNum - 1][i] = textVar1;
+            }
+        }
+    }
 
-
-    }//end matrixloader method
-
+    //Devuelve la matriz ya construida, validando primero que el nivel tenga
+    //exactamente un jugador y una salida
     public String[][] getGameMatrix() {
         int exitCount = 0;
         int i1 = 0;
         int j1 = 0;
-        //  playerCount=0;//we must reset our variables to zero for the next level.
-        //before we will return the matrix we will quick do some error checking
         int playerCount = 0;
+
         for (int i = 0; i < GameMatrix.length; i++) {
             for (int j = 0; j < GameMatrix[i].length; j++) {
                 if (GameMatrix[i][j].equals("P")) {
                     playerCount += 1;
-
                 } else if (GameMatrix[i][j].equals("E")) {
                     exitCount += 1;
                     i1 = i;
                     j1 = j;
                 }
-
             }
-        }//end double for loop
+        }
+
         if (playerCount > 1 || exitCount > 1) {
-            // playerCount=0;//we must reset our variables to zero for the next level.
-            // exitCount=0;//we must reset our variables to zero for the next level.
             throw new gameFileError();
-        } else
-            GameMatrix[i1][j1] = "W";
-
-
+        } else {
+            GameMatrix[i1][j1] = "W"; //Oculta la salida hasta que se recolecten todos los diamantes
+        }
         return GameMatrix;
-    }//end getGameMatrix method
+    }
 
-    public int getMatrixSizeColumn()//return the matrixsize-column
-    {
+    public int getMatrixSizeColumn() {
         return column;
     }
 
-    public int getMatrixSizeRow()//return the matrix size-row
-    {
+    public int getMatrixSizeRow() {
         return row;
 
     }
 
-    public int ExitXCord() //return the X cordinates for the Exit
-    {
+    public int ExitXCord() {
         return exitXCord;
     }
 
-    public int ExitYCord()//return the Y cordinates for the Exit
-    {
+    public int ExitYCord(){
         return exitYCord;
     }
 
+    //Retorna la cantidad total de diamantes presentes en el nivel
     public int dimondCount() {
         int totalDimonds = 0;
         for (int i = 0; i < GameMatrix.length; i++) {
@@ -119,17 +126,17 @@ public class FileLoader {
                 if (GameMatrix[i][j].equals("D") || GameMatrix[i][j].equals("H"))
                     totalDimonds += 1;
             }
-        }//end double for loop
-        return totalDimonds;//return the total number of dimonds in the level
+        }
+        return totalDimonds;
     }
 
-    private class gameFileError extends RuntimeException //if a level is loaded with ether two players or two exits throw this
-    {
+    //Excepción lanzada cuando el archivo de nivel es inválido, contiene más de un jugador o más de una salida
+    private class gameFileError extends RuntimeException {
         public gameFileError() {
             JFrame frame = new JFrame("Alert");
-            JOptionPane.showMessageDialog(frame, "Your maze file ether had more than one player, or more than one exit.");
+            JOptionPane.showMessageDialog(frame, "El archivo del laberinto tiene más de un jugador o más de una salida.");
         }
-    }//end inner class
+    }
 
     private int exitXCord = 0;
     private int exitYCord = 0;
@@ -137,4 +144,4 @@ public class FileLoader {
     private int column;
     private int row;
 
-}//end class
+}

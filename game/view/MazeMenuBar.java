@@ -3,12 +3,14 @@ package game.view;
 import javax.swing.*;
 import java.awt.event.KeyEvent;
 
-
 /*
-    Clase para construir el menú del juego mediante un "Listener", de esta manera
-    el menú no conoce la implementación del juego y sólo reacciona a los clicks.
+    Construye la barra del menú del juego. El menú notifica cuándo se interactuó
+    con alguna de sus opciones sin conocer la implementación de esa lógica.
  */
+
 public class MazeMenuBar extends JMenuBar {
+
+    //Notifica cada interacción del jugador con una opción del menú.
     public interface Listener {
         void newGame();
 
@@ -23,8 +25,8 @@ public class MazeMenuBar extends JMenuBar {
         void onExit();
     }
 
-    //Expresiones lambda sirven para llamar a la clase que se encargue de ejecutar la lógica de cada
-    //opción. En este caso, game.controller.GameController
+    //Crea cada elemento del menú y lo conecta, mediante una expresión lambda,
+    //con el metodo correspondiente del listener
     public MazeMenuBar(Listener listener) {
         //Items del menú
         JMenuItem newGameItem = new JMenuItem("New Game");

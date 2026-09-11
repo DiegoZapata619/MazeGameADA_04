@@ -5,10 +5,14 @@ import javax.swing.JProgressBar;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+/*
+    Encapsula la lógica del temporizador de cada nivel, maneja los ticks de la cuenta regresiva,
+    actualiza la barra de progreso en pantalla y notifica cuando se acaba el tiempo.
+ */
 
-//Clase que encapsula el timer. Maneja los ticks de la cuenta regresiva, actualiza la información en pantalla
-// y notifica cuando se acaba el tiempo
 public class CountdownTimer {
+
+    //Notifica cuando el tiempo del nivel se agotó
     public interface Listener {
         void onTimeout();
     }
@@ -31,6 +35,8 @@ public class CountdownTimer {
         this.timer = new Timer(1000, tickHandler);
     }
 
+    //Se ejecuta cada segundo: descuenta el tiempo restante, actualiza la barra
+    //de progreso y notifica al listener cuando llega a cero.
     private final ActionListener tickHandler = new ActionListener() {
         public void actionPerformed(ActionEvent e) {
             secondsLeft -= 1;

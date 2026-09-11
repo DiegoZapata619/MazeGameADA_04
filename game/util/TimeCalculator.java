@@ -1,13 +1,17 @@
 package game.util;
 
+/*
+    Calcula el tiempo que se le asigna a un jugador para completar un nivel,
+    en función del tamaño del laberinto y la cantidad de diamantes que contiene.
+ */
+
 public class TimeCalculator {
     int minutes = 0;
     int seconds = 0;
 
-    public void calcTimeforMaze(int totalDimonds, int xSize, int ySize)//some kinda method that determines the time a player has for each level based on the level size and dimonds.
-    {
-        if (xSize / ySize < 1)//this method should be changed in order to provide a more relistic time system.
-        {
+    //Calcula el tiempo permitido para el nivel actual
+    public void calcTimeforMaze(int totalDimonds, int xSize, int ySize) {
+        if (xSize / ySize < 1) {
             minutes += (ySize / xSize) + 1;
         } else
             minutes += (ySize / xSize) + 1;
@@ -18,7 +22,7 @@ public class TimeCalculator {
         }
         if (minutes == 0)
             minutes = 2;
-    }//end method
+    }
 
     public int getMinutes() {
         return minutes;
@@ -27,4 +31,4 @@ public class TimeCalculator {
     public int getSeconds() {
         return seconds;
     }
-}//end class
+}

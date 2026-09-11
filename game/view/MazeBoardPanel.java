@@ -7,9 +7,16 @@ import java.awt.event.KeyEvent;
 import java.util.HashMap;
 import java.util.Map;
 
-//Clase que gestiona el uso del panel en cada movimiento o carga de archivo .maz
+/*
+    Renderiza el tablero del laberinto y captura los movimientos del jugador mediante el teclado.
+    Ya no reconstruye el panel completo en cada movimiento, si las dimensiones de la matriz no
+    cambiaron (mismo nivel), solo actualiza los íconos de las celdas que se modificaron.
+    Si cambiaron (nuevo nivel), reconstruye la cuadrícula desde cero.
+ */
 
 public class MazeBoardPanel extends JPanel {
+
+    //Notifica los movimientos del jugador sin que este panel conozca quién implementa la lógica de movimiento.
     public interface MoveListener {
         void onMove(int xScale, int yScale);
     }
@@ -23,23 +30,20 @@ public class MazeBoardPanel extends JPanel {
     public MazeBoardPanel(MoveListener moveListener) {
         this.moveListener = moveListener;
         addKeyListener(new BoardKeyHandler());
-        //este setting permite que el componente gráfico reciba foco del teclado
-        setFocusable(true);
+        setFocusable(true); //Permite que el panel reciba el foco del teclado
     }
 
     /*
-    Método principal que actualiza el panel del juego
-    Reconstruye todo si no existen labels en el layout o si hubo un cambio
-    las dimensiones, de lo contrario, solo actualiza lo que cambió
+        Actualiza el panel con la matriz recibida. Reconstruye la cuadrícula completa si aún no existen
+        labels o si cambiaron las dimensiones de la matriz (cambio de nivel), de los contrario solo
+        actualiza las celdas que cambiaron.
      */
 
     public void render(String[][] matrix) {
         boolean rebuild =
-                //si es primer nivel y no hay labelss
-                labels == null
-                        //si tamaño cambió = cambió de nivel
-                        || labels.length != matrix.length //distinto numero de filas
-                        || labels[0].length != matrix[0].length; //distinto numero de columnas
+                labels == null //Primer nivel: aún no hay labels
+                        || labels.length != matrix.length //Cambió el número de filas
+                        || labels[0].length != matrix[0].length; //Cambió el número de columnas
 
         if (rebuild) {
             rebuildGrid(matrix);
@@ -51,10 +55,10 @@ public class MazeBoardPanel extends JPanel {
         requestFocusInWindow();
     }
 
-    //reconstruye el panel cada que ocurre un cambio de nivel
+    //Reconstruye la cuadrícula completa de labels. Se invoca únicamente cuando
+    //cambian las dimensiones del laberitno (nuevo nivel)
     private void rebuildGrid(String[][] matrix) {
-        //remueve todas las labels del contenedor principal (panel GridLayout)
-        removeAll();
+        removeAll(); //Quita todos los labels del panel anterior
         setLayout(new GridLayout(matrix.length, matrix[0].length));
         labels = new JLabel[matrix.length][matrix[0].length];
         for (int i = 0; i < matrix.length; i++) {
@@ -64,15 +68,12 @@ public class MazeBoardPanel extends JPanel {
                 add(cell);
             }
         }
-        //revalida la posición de todos los labels para que se mantengan con tamaño ideal
-        revalidate();
-        //redibuja los labels
-        repaint();
+        revalidate(); //Reajusta la posición de toods los labels
+        repaint(); //Redibuja los labels
     }
 
-    //ahora, en lugar de reconstruir desde 0 la tabla por cada movimiento
-    //se cambia únicamente las celdas que se vieron afectadas, es decir
-    //aquellas que no coinciden con la copia de la tabla
+    //Actualiza únicamente las celdas cuyo contenido cambió respecto a la última matriz
+    //renderizada, en lugar de reconstruir todo el panel.
     private void updateChangedCells(String[][] matrix) {
         for (int i = 0; i < matrix.length; i++) {
             for (int j = 0; j < matrix[i].length; j++) {
@@ -83,10 +84,8 @@ public class MazeBoardPanel extends JPanel {
         }
     }
 
-    //En lugar de crear labels una y otra vez, se crea un hashmap que guarda
-    //cada label usado hasta el momento
-    //si no existe, usa cellType (normalmente un string tipo "H", "D", etc)
-    //y crea esa clave para uso posterior
+    //Deuvelve el ícono correspondiente a un tipo de celda, reutilizándolo
+    //desde la caché si ya fue cargado antes en vez de leerlo de nuevo desde disco.
     private ImageIcon iconFor(String cellType) {
         if (!iconCache.containsKey(cellType)) {
             ImageIcon icon = new ImageIcon("resources/images/" + cellType + ".png");
@@ -96,8 +95,8 @@ public class MazeBoardPanel extends JPanel {
 
     }
 
-    //copia fila por fila la matriz enviada como parámetro
-    //auxiliar para hacer una copia del tablero y comparar por cada movimiento
+    //Crea una copia fila por fila de la matriz recibida, usada para comparar
+    //contra la matriz siguiente en cada movimiento.
     private String[][] copyOf(String[][] source) {
         String[][] copy = new String[source.length][];
         for (int i = 0; i < source.length; i++) {
@@ -106,10 +105,11 @@ public class MazeBoardPanel extends JPanel {
         return copy;
     }
 
-    //copia idéntica del keyHandler que anteriormente estaba en la GUI
+    //Captura las teclas de movimeinto (flechas o WASD) y las traduce en llamadas.
+    //Es la misma lógica que antes estaba en la GUI.
     private class BoardKeyHandler extends KeyAdapter {
         public void keyPressed(KeyEvent event) {
-            //no se llama directamente a theArchitect, sino que se maneja
+            //No se llama directamente a theArchitect, sino que se maneja
             //un moveListener para que clase no conozca directamente quien implementa
             switch (event.getKeyCode()) {
                 case KeyEvent.VK_UP:

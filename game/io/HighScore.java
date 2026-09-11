@@ -2,7 +2,13 @@ package game.io;
 
 import java.io.*;
 
+/*
+    Encargada de registrar los puntajes de los jugadores en un archivo de texto.
+ */
+
 public class HighScore {
+
+    //Agrega una nueva entrada de puntaje al archivo scores.txt
     public void addHighScore(String name, int min, int sec, int level) {
         try {
             String outData = "PlayerName: " + name + " Total Time for Levels: " + min + ":" + sec + "(Minutes:Seconds)" + "Level Reached:*" + level;
@@ -10,11 +16,10 @@ public class HighScore {
             out.println("");
             out.println(outData);
             out.close();
-        }//prints the highscore data to scores.txt
+        }
         catch (Exception ex) {
             System.out.println(ex);
-        }//end catch
-
-    }//end addHighScore   
-}//end class
+        }
+    }
+}
 

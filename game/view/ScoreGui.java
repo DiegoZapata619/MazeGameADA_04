@@ -5,13 +5,20 @@ import java.awt.event.*;
 import javax.swing.*;
 import java.io.*;
 
+/*
+    Ventana de diálogo que muestra la tabla de puntajes guardados,
+    leyénddolos del archivo scores.txt y ordenándolos por nivel alcanzado.
+ */
+
 public class ScoreGui extends JDialog implements ActionListener {
 
     public ScoreGui() {
         super();
     }
 
-    public void ScoreGui()//the game.controller.view.ScoreGui Method displays the scores in order from lowest to highest.
+    //Lee scores.txt, agrupa los puntajes por nivel alcanzado y los despliega
+    //en pantalla junto con un botón para cerrar el diálogo.
+    public void ScoreGui()
     {
         Container cp = getContentPane();
         JButton ok = new JButton("OK");
@@ -31,44 +38,46 @@ public class ScoreGui extends JDialog implements ActionListener {
                 line = br1.readLine();
                 if (line != "") {
                     recordsCount += 1;
-                    int tempPOS = line.indexOf("*");//use the star to indicate the next charator is going to be the maze level which we will sort by.
+                    //El asterisco marca el inicio del nivel alcanzado, usado para ordenar
+                    int tempPOS = line.indexOf("*");
                     String pos = line.substring(tempPOS + 1);
                     int index = Integer.parseInt(pos);
                     if (myScoreArray[index] == " ")
-                        myScoreArray[index] = line;//add in the score to the array.
+                        myScoreArray[index] = line; //Se agrega el puntaje en su posición
                     else {
                         for (int i = 0; i < myScoreArray.length; i++) {
-                            if (index + i < myScoreArray.length)//prevent array out of bounds errors.
+                            if (index + i < myScoreArray.length) //Evita salirse del arreglo
                             {
                                 if (myScoreArray[index + i].equals(" ")) {
-                                    myScoreArray[index + 1] = line;//add in a score to the next available area of the array
+                                    myScoreArray[index + 1] = line; //Se agrega en la siguiente posición libre
                                 }
-                            }//end first if
-                        }//end for loop
-                    }//end else
+                            }
+                        }
+                    }
                     JPanel scorePanel = new JPanel();
                     scorePanel.setLayout(new GridLayout(recordsCount, recordsCount));
                     for (int i = 0; i < myScoreArray.length; i++) {
                         if (myScoreArray[i] != " ") {
-                            mainLabel = new JLabel(myScoreArray[i], JLabel.LEFT);//display the score on the screen
+                            mainLabel = new JLabel(myScoreArray[i], JLabel.LEFT);
                             scorePanel.add(mainLabel);
                         }
-                    }//end for loop
+                    }
                     cp.add(scorePanel);
-                }//end very first if
-            }//end first while loop
-        }//end try
+                }
+            }
+        }
         catch (IOException ex) {
             JFrame frame = new JFrame("Alert");
-            JOptionPane.showMessageDialog(frame, "Problem with scores.txt file.  Cant load high Scores");
-        }//end catch
+            JOptionPane.showMessageDialog(frame, "Hubo un problema al leer scores.txt. No se pudieron cargar los puntajes");
+        }
         pack();
         setVisible(true);
-    }//end constructor
+    }
 
+    //Cierra el diálogo al presionar el botón "OK".
     public void actionPerformed(ActionEvent e) {
         dispose();
     }
 
     private JLabel mainLabel;
-}//end class
+}

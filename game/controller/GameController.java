@@ -7,12 +7,13 @@ import game.util.TimeKeeper;
 
 import javax.swing.JOptionPane;
 
-
 /*
-Clase que contiene todas las reglas del juego: nivel actual, matriz, diamantes, nombre de jugador
-y score. Colabora con las clases game.io.FileLoader,game.util.TimeKeeper y game.controller.TheArchitect para poder accionar.
-No conoce ningún componente de la UI, pero es utilizado por esta cuando se ejecuta una acción
+    Contiene todas las reglas del juego: nivel actual, matriz del laberinto, diamantes recolectados,
+    nombre del jugador y puntaje.
+    Colabora con las clases game.io.FileLoader,game.util.TimeKeeper y game.controller.TheArchitect para poder accionar.
+    No conoce ningún componente de la UI, pero es utilizado por esta cuando se ejecuta una acción.
  */
+
 public class GameController {
     private final FileLoader fl = new FileLoader();
     private final HighScore hs = new HighScore();
@@ -27,18 +28,20 @@ public class GameController {
     private int minutesAllowed;
     private int secondsAllowed;
 
-    //Carga el primer nivel. Esto antes estaba deshabilitado
+    //Reinicia el estado del juego y carga el primer nivel. Esto antes estaba deshabilitado.
     public void startNewGame() {
         catFileName = 1;
         levelNum = 1;
         loadLevelFile("level1.maz");
     }
 
-    //Habilita la opción de cargar un maze específico
+    //Carga un archivo de laberinto específico, elegido por el jugador.
     public void openFile(String fileName) {
         loadLevelFile(fileName);
     }
 
+    //Carga el archivo del nivel indicado: crea un nuevo TheArchitect,
+    //obtiene la matriz y calcula el tiempo permitido para ese nivel.
     private void loadLevelFile(String fileName) {
         theArc = new TheArchitect();
         fl.loadFile(fileName);
@@ -50,6 +53,7 @@ public class GameController {
         secondsAllowed = timeCalc.getSeconds();
     }
 
+    //Crea una copia de la matriz para no compartir referencia con la matriz orginal de FileLoader.
     private String[][] copyOf(String[][] source) {
         String[][] copy = new String[source.length][];
         for (int i = 0; i < source.length; i++) {
@@ -58,15 +62,15 @@ public class GameController {
         return copy;
     }
 
-    //Reacciona ante los movimientos del jugador. Actualiza la información del tablero
-    // y devuelve un valor booleado para indicar si existe un cambio de nivel
+    //Reacciona ante los movimientos del jugador y actualiza la matriz del tablero.
     public boolean move(int xScale, int yScale) {
         theArc.playerMove(xScale, yScale, matrix, fl.dimondCount());
         matrix = theArc.getUpdatedMatrix();
         return theArc.getLevel();
     }
 
-    //Permite el avance al siguiente nivel una vez alcanzada la salida
+    //Avanza al siguiente nivel una vez que el jugador alcanzó la salida,
+    //acumulando el tiempo usado en el nivel anterior.
     public void advanceToNextLevel(int minutesLeft, int secondsLeft) {
         levelNum += 1;
         tk.TimeKeeper(minutesLeft, secondsLeft);
@@ -74,7 +78,7 @@ public class GameController {
         loadLevelFile("level" + catFileName + ".maz");
     }
 
-    //Método llamado cuando el jugador se queda sin tiempo
+    //Se llama cuando el jugador se queda sin tiempo; recarga el nivel actual.
     public boolean retryCurrentLevel() {
         catFileName -= 1;
         if (catFileName < 1) {
@@ -84,12 +88,13 @@ public class GameController {
         return true;
     }
 
-    //Habilita el nombre en el menú
+    //Solicita al jugador su nombre mediante diálogo, para usarlo en el high score.
     public void promptForPlayerName() {
         JOptionPane optionPane = new JOptionPane();
-        playerName = JOptionPane.showInputDialog("Please Enter your Earth Name");
+        playerName = JOptionPane.showInputDialog("Ingresa tu nombre de jugador");
     }
 
+    //Guarda el puntaje actual del jugador en el archivo de high score.
     public void saveScore() {
         hs.addHighScore(playerName, tk.getMinutes(), tk.getSeconds(), levelNum);
     }
