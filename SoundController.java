@@ -45,6 +45,7 @@ public class SoundController {
                     return;
                 }
                 clip.stop();
+                clip.flush();
             }
             clip.setFramePosition(0);
             clip.start();

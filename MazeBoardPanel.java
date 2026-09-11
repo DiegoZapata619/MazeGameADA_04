@@ -70,7 +70,7 @@ public class MazeBoardPanel extends JPanel {
 
     //ahora, en lugar de reconstruir desde 0 la tabla por cada movimiento
     //se cambia únicamente las celdas que se vieron afectadas, es decir
-    //aquellas que no coinciden con la copia de la tabla (
+    //aquellas que no coinciden con la copia de la tabla
     private void updateChangedCells(String[][] matrix) {
         for (int i = 0; i < matrix.length; i++) {
             for (int j = 0; j < matrix[i].length; j++) {
