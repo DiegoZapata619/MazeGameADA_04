@@ -2,7 +2,6 @@ package game.controller;
 
 import game.audio.SoundController;
 
-import javax.swing.*;
 
 /*
     Contiene la lógica de movimiento del jugador dentro del laberinto:
@@ -10,7 +9,7 @@ import javax.swing.*;
     y actualiza la matriz, notificando el efecto de sonido correspondiente mediante SoundController.
  */
 
-public class TheArchitect extends JFrame {
+public class TheArchitect {
     SoundController snc = new SoundController();
     int foundPlayer = 0;
     String[][] updatedMatrix;
